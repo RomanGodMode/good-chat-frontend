@@ -1,0 +1,30 @@
+@import "src/variables";
+
+.header {
+  padding: 0 30px;
+  margin-bottom: 30px;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 20px;
+  grid-template-columns: max-content max-content 1fr;
+  background-color: $pale-back;
+
+  a {
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.logout {
+  justify-self: right;
+}
+
+.unauthorizedHeader {
+  grid-template-columns: 1fr;
+}
+
+.login {
+  justify-self: right;
+}
