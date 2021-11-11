@@ -14,20 +14,4 @@
   background-color: $pale-back;
   display: grid;
   row-gap: 30px;
-
-  input {
-    padding: 15px 10px;
-    font-size: 18px;
-    border: none;
-    background-color: $dark-back;
-    color: $main-content;
-  }
-
-  button {
-    font-size: 20px;
-    padding: 30px 10px;
-    background-color: $dark-back;
-    color: $main-content;
-    border: none;
-  }
 }

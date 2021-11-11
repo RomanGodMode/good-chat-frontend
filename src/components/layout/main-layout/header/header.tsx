@@ -1,15 +1,17 @@
 import React from 'react'
 import s from './header.module.scss'
-import { NavLink } from "react-router-dom"
-import { useUser } from "../../../../hooks/use-user";
+import { NavLink } from 'react-router-dom'
+import { prevent } from '../../../../functions/prevent'
+import { userStore } from '../../../../store/user-store'
+import { observer } from 'mobx-react-lite'
 
-export const Header = () => {
-  const user = useUser()
+export const Header = observer(() => {
+  const {user, logout} = userStore
   if (user) {
     return <header className={s.header}>
       <NavLink to="/find-friends">Find friends</NavLink>
       <NavLink to="/messager">Messager</NavLink>
-      <NavLink to="/logout" className={s.logout}>Logout</NavLink>
+      <a href="https://disable-warning/" onClick={prevent(logout)} className={s.logout}>Logout</a>
     </header>
   }
 
@@ -17,6 +19,6 @@ export const Header = () => {
     <NavLink className={s.login} to="/register">Register</NavLink>
     <NavLink className={s.login} to="/login">Login</NavLink>
   </header>
-}
+})
 
 

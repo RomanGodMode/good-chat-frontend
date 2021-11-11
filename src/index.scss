@@ -53,4 +53,30 @@ form {
     flex-direction: column;
     gap: 20px;
   }
+
+  input {
+    padding: 15px 10px;
+    font-size: 18px;
+    border: none;
+    background-color: $dark-back;
+    color: $main-content;
+  }
+
+  button {
+    font-size: 20px;
+    padding: 30px 10px;
+    background-color: $dark-back;
+    color: $main-content;
+    border: none;
+    cursor: pointer;
+    transition: all .5s ease;
+
+    &:hover {
+      outline: 1px solid $main-content;
+    }
+
+    &:active {
+      outline: 1px solid $bright-content;
+    }
+  }
 }

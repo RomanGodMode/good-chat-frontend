@@ -1,23 +1,34 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.scss'
-import {App} from './App'
+import { App } from './App'
 import reportWebVitals from './reportWebVitals'
-import {BrowserRouter} from 'react-router-dom'
-import {AuthenticatedUserProvider} from "./hooks/use-user"
+import { BrowserRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
+import { handleServerError } from './functions/handle-server-error'
+
+const queryClient = new QueryClient()
+
+queryClient.setDefaultOptions({
+  queries: {
+    onError: e => handleServerError()(e as any)
+  }
+})
 
 ReactDOM.render(
-    <React.StrictMode>
-        <BrowserRouter>
-            <AuthenticatedUserProvider>
-                <App/>
-            </AuthenticatedUserProvider>
-        </BrowserRouter>
-    </React.StrictMode>,
-    document.getElementById('root')
-);
+  <React.StrictMode>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <App/>
+        <ReactQueryDevtools/>
+      </QueryClientProvider>
+    </BrowserRouter>
+  </React.StrictMode>,
+  document.getElementById('root')
+)
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+reportWebVitals()

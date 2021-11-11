@@ -1,3 +1,8 @@
-import { AuthPage } from "./auth-page"
+import { AuthForm, AuthPage } from './auth-page'
+import { authApi } from '../../../api/auth'
+import { handleServerError } from '../../../functions/handle-server-error'
 
-export const RegisterPage = () => <AuthPage isRegister={true}/>
+const onSubmit = (data: AuthForm) => authApi.register(data)
+  .catch(handleServerError(['username', 'password']))
+
+export const RegisterPage = () => <AuthPage onSubmit={onSubmit} isRegister={true}/>
