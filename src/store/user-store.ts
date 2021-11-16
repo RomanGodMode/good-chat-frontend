@@ -4,6 +4,12 @@ import { AuthForm } from '../components/pages/auth/auth-page'
 import { authApi } from '../api/auth'
 import jwtDecode from 'jwt-decode'
 
+type DecodedToken = {
+  user_id: number
+  name: string
+  exp: number
+}
+
 export const ACCESS_TOKEN = 'access_token'
 export const REFRESH_TOKEN = 'refresh_token'
 
@@ -24,12 +30,12 @@ class UserStore {
   }
 
   loginByToken = (token: string) => {
-    const {name, id, exp} = jwtDecode<AuthenticatedUser & { exp: number }>(token)
+    const {name, user_id, exp} = jwtDecode<DecodedToken>(token)
     if (isDeprecated(exp)) {
       return true
     }
-    this.user = {name, id}
-    setTimeout(this.refresh, 1000 * 60 * 60)
+    this.user = {id: user_id, name}
+    setTimeout(this.refresh, 1000 * 60 * 4)
   }
 
   refresh = () => {
@@ -48,7 +54,6 @@ class UserStore {
   }
 
   logout = () => {
-    console.log(this)
     localStorage.removeItem(ACCESS_TOKEN)
     localStorage.removeItem(REFRESH_TOKEN)
     this.user = null

@@ -11,6 +11,7 @@ export const Header = observer(() => {
     return <header className={s.header}>
       <NavLink to="/find-friends">Find friends</NavLink>
       <NavLink to="/messager">Messager</NavLink>
+      <h3 className={s.username}>{user.name}</h3>
       <a href="https://disable-warning/" onClick={prevent(logout)} className={s.logout}>Logout</a>
     </header>
   }

@@ -47,6 +47,14 @@ a.active {
   grid-template-rows: max-content 1fr;
 }
 
+button {
+  background-color: $dark-back;
+  color: $main-content;
+  border: none;
+  cursor: pointer;
+  transition: all .5s ease;
+}
+
 form {
   .inputGroup {
     display: flex;
@@ -65,11 +73,6 @@ form {
   button {
     font-size: 20px;
     padding: 30px 10px;
-    background-color: $dark-back;
-    color: $main-content;
-    border: none;
-    cursor: pointer;
-    transition: all .5s ease;
 
     &:hover {
       outline: 1px solid $main-content;

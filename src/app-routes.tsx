@@ -1,4 +1,3 @@
-import React from 'react'
 import { MainLayout } from './components/layout/main-layout/main-layout'
 import { Navigate, Route } from 'react-router-dom'
 import { SelectChatPage } from './components/pages/messager/select-chat/select-chat-page'
@@ -14,7 +13,7 @@ export const useAppRoutes = (isAuthenticated: boolean) => {
       <Route path="/" element={<MainLayout/>}>
         <Route path="messager">
           <Route index element={<SelectChatPage/>}/>
-          <Route path="chat" element={<ChatPage/>}/>
+          <Route path=":username" element={<ChatPage/>}/>
         </Route>
         <Route path="find-friends" element={<FindFriendsPage/>}/>
         <Route path="*" element={<Navigate to="messager"/>}/>

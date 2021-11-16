@@ -1,7 +1,11 @@
+import { Chats } from './chats/chats'
+
+
 export const SelectChatPage = () => {
-    return (
-        <div>
-            ВЫбар чата
-        </div>
-    )
+
+  return (
+    <div>
+      <Chats/>
+    </div>
+  )
 }

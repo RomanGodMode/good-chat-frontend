@@ -6,7 +6,7 @@
   display: grid;
   grid-auto-flow: column;
   gap: 20px;
-  grid-template-columns: max-content max-content 1fr;
+  grid-template-columns: max-content max-content 1fr max-content max-content;
   background-color: $pale-back;
 
   a {
@@ -17,8 +17,12 @@
   }
 }
 
+.username {
+  grid-column: 4;
+}
+
 .logout {
-  justify-self: right;
+  grid-column: 5;
 }
 
 .unauthorizedHeader {
