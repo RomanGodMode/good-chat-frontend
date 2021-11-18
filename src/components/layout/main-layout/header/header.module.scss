@@ -1,6 +1,9 @@
 @import "src/variables";
 
 .header {
+  position: fixed;
+  right: 0;
+  left: 0;
   padding: 0 30px;
   margin-bottom: 30px;
   display: grid;
@@ -8,6 +11,7 @@
   gap: 20px;
   grid-template-columns: max-content max-content 1fr max-content max-content;
   background-color: $pale-back;
+  border-bottom: 3px solid $paled-content;
 
   a {
     padding: 20px 0;

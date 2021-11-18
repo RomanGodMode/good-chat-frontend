@@ -1,0 +1,25 @@
+@import "src/variables";
+
+.message {
+  padding: 10px;
+  display: grid;
+  grid-template:
+          "username sentAt" max-content
+          "text text" max-content
+          / 1fr 2fr;
+  column-gap: 20px;
+  row-gap: 5px;
+  background-color: $pale-back;
+}
+
+.username {
+  grid-area: username;
+}
+
+.sentAt {
+  grid-area: sentAt;
+}
+
+.text {
+  grid-area: text;
+}

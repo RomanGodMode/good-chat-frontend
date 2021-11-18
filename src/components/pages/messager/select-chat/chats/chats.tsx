@@ -3,9 +3,9 @@ import { dialogsApi } from '../../../../../api/dialogs'
 import { Loader } from '../../../../shared/loader/loader'
 import { getInterlocutor } from '../../../../../functions/get-interlocutor'
 import { ChatItem } from './chat-item/chat-item'
-import { userStore } from '../../../../../store/user-store'
 import { observer } from 'mobx-react-lite'
-
+import { userStore } from '../../../../../store/root-store'
+import s from './chats.module.scss'
 
 export const Chats = observer(() => {
   const {data: dialogs, isLoading} = useQuery('dialogs', dialogsApi.getMyDialogs)
@@ -14,7 +14,7 @@ export const Chats = observer(() => {
     return <Loader/>
 
   return (
-    <div>
+    <div className={s.chats}>
       {dialogs?.map(d => <ChatItem
         key={`dialog ${d.id}`}
         lastMessage={d.last_message}

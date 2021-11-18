@@ -4,11 +4,11 @@
   align-self: start;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  gap: 10px;
 }
 
 .userItem {
-  padding: 20px;
+  //padding: 40px;
   display: grid;
   grid-template: "name" minmax(30px, max-content)
                  "link" minmax(30px, max-content)
@@ -16,6 +16,7 @@
   gap: 30px;
 
   background-color: $pale-back;
+
 
   h4 {
     grid-area: name;
@@ -25,6 +26,10 @@
   }
 
   .writeTo {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+
     grid-area: link;
     padding: 14px;
     text-align: center;

@@ -3,6 +3,7 @@ import { AuthenticatedUser } from '../types/user'
 import { AuthForm } from '../components/pages/auth/auth-page'
 import { authApi } from '../api/auth'
 import jwtDecode from 'jwt-decode'
+import { RootStore } from './root-store'
 
 type DecodedToken = {
   user_id: number
@@ -15,12 +16,17 @@ export const REFRESH_TOKEN = 'refresh_token'
 
 const isDeprecated = (exp: number) => exp * 1000 < Date.now()
 
-class UserStore {
+export class UserStore {
+  root: RootStore
+
   user: AuthenticatedUser | null = null
 
-  constructor() {
+  constructor(root: RootStore) {
+    this.root = root
     makeAutoObservable(this)
+  }
 
+  checkAuth = () => {
     const token = localStorage.getItem(ACCESS_TOKEN)
     if (!token) {
       return
@@ -35,6 +41,8 @@ class UserStore {
       return true
     }
     this.user = {id: user_id, name}
+    this.root.chatStore.openChat()
+
     setTimeout(this.refresh, 1000 * 60 * 4)
   }
 
@@ -59,6 +67,4 @@ class UserStore {
     this.user = null
   }
 }
-
-export const userStore = new UserStore()
 

@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { handleServerError } from './functions/handle-server-error'
 
-const queryClient = new QueryClient()
+export const queryClient = new QueryClient()
 
 queryClient.setDefaultOptions({
   queries: {

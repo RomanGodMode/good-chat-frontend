@@ -1,7 +1,7 @@
 import { AuthPage } from './auth-page'
-import { userStore } from '../../../store/user-store'
 import { observer } from 'mobx-react-lite'
 import { handleServerError } from '../../../functions/handle-server-error'
+import { userStore } from '../../../store/root-store'
 
 
 export const LoginPage = observer(() => {

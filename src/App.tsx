@@ -3,12 +3,15 @@ import 'react-toastify/dist/ReactToastify.css'
 import { Routes } from 'react-router-dom'
 import { useAppRoutes } from './app-routes'
 import { ToastContainer } from 'react-toastify'
-import { userStore } from './store/user-store'
 import { observer } from 'mobx-react-lite'
+import { userStore } from './store/root-store'
+import { useEffect } from 'react'
 
 
 export const App = observer(() => {
   const routes = useAppRoutes(!!userStore.user)
+
+  useEffect(() => userStore.checkAuth(), [])
 
   return (
     <div className="app">

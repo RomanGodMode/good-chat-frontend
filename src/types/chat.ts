@@ -16,4 +16,5 @@ export type Message = {
   text: string
   sent_at: string
   sender: User
+  dialog: number
 }

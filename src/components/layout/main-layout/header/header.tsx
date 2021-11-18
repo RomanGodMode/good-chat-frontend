@@ -2,13 +2,13 @@ import React from 'react'
 import s from './header.module.scss'
 import { NavLink } from 'react-router-dom'
 import { prevent } from '../../../../functions/prevent'
-import { userStore } from '../../../../store/user-store'
 import { observer } from 'mobx-react-lite'
+import { userStore } from '../../../../store/root-store'
 
 export const Header = observer(() => {
   const {user, logout} = userStore
   if (user) {
-    return <header className={s.header}>
+    return <header className={`${s.header} container`}>
       <NavLink to="/find-friends">Find friends</NavLink>
       <NavLink to="/messager">Messager</NavLink>
       <h3 className={s.username}>{user.name}</h3>
