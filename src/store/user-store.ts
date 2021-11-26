@@ -4,6 +4,8 @@ import { AuthForm } from '../components/pages/auth/auth-page'
 import { authApi } from '../api/auth'
 import jwtDecode from 'jwt-decode'
 import { RootStore } from './root-store'
+import { Dialog } from '../types/chat'
+import { getInterlocutor } from '../functions/get-interlocutor'
 
 type DecodedToken = {
   user_id: number
@@ -20,6 +22,7 @@ export class UserStore {
   root: RootStore
 
   user: AuthenticatedUser | null = null
+  isLoading = true
 
   constructor(root: RootStore) {
     this.root = root
@@ -27,8 +30,10 @@ export class UserStore {
   }
 
   checkAuth = () => {
+    this.isLoading = true
     const token = localStorage.getItem(ACCESS_TOKEN)
     if (!token) {
+      this.isLoading = false
       return
     }
     const tokenDeprecated = this.loginByToken(token)
@@ -41,6 +46,7 @@ export class UserStore {
       return true
     }
     this.user = {id: user_id, name}
+    this.isLoading = false
     this.root.chatStore.openChat()
 
     setTimeout(this.refresh, 1000 * 60 * 4)
@@ -51,7 +57,7 @@ export class UserStore {
       .then(data => {
         localStorage.setItem(ACCESS_TOKEN, data.access)
         this.loginByToken(data.access)
-      }).catch()
+      }).catch(() => this.isLoading = false)
   }
 
   login = async (data: AuthForm) => {
@@ -65,6 +71,11 @@ export class UserStore {
     localStorage.removeItem(ACCESS_TOKEN)
     localStorage.removeItem(REFRESH_TOKEN)
     this.user = null
+    this.isLoading = false
+  }
+
+  getInterlocutor(dialog: Dialog) {
+    return getInterlocutor(dialog, this.user?.id)
   }
 }
 

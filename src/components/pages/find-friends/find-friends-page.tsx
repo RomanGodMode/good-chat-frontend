@@ -1,34 +1,26 @@
-import { useMutation, useQuery, useQueryClient } from 'react-query'
-import { USERS, usersApi } from '../../../api/users'
+import { useQuery } from 'react-query'
+import { usersApi } from '../../../api/users'
 import s from './find-friends.module.scss'
 import { Loader } from '../../shared/loader/loader'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import { User } from '../../../types/user'
-import { DIALOGS, dialogsApi } from '../../../api/dialogs'
-import { DialogWithoutLastMessage } from '../../../types/chat'
+import { useEffect } from 'react'
+import { chatStore } from '../../../store/root-store'
 
 export const FindFriendsPage = observer(() => {
   const {data: users, isLoading} = useQuery('users', usersApi.getUsers)
-  const initiateDialog = useMutation(dialogsApi.initiateDialog)
-  const queryClient = useQueryClient()
-
   const navigate = useNavigate()
+
+  useEffect(() => {
+    chatStore.setOnInitiateDialogSuccess(dialog => navigate(`/messager/dialog/${dialog.id}`))
+  }, []) // eslint-disable-line
 
   if (isLoading)
     return <Loader/>
 
   const writeTo = async (user: User) => {
-    initiateDialog.mutate(user.id, {
-      onSuccess: createdDialog => {
-        const oldDialogs = queryClient.getQueryData<DialogWithoutLastMessage[]>(DIALOGS) || []
-        queryClient.setQueryData(DIALOGS, [createdDialog, ...oldDialogs])
-
-        navigate(`/messager/${user.username}`)
-
-        queryClient.invalidateQueries(USERS)
-      }
-    })
+    chatStore.initiateDialog(user.id)
   }
 
   return (

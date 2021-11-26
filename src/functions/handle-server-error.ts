@@ -4,6 +4,7 @@ import { AxiosError } from 'axios'
 
 const handle = (error: AxiosError, possibleFieldErrors: string[]) => {
   const detail = error.response?.data?.detail
+  console.dir(error)
   if (detail) {
     return toast.error(detail)
   }

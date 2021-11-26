@@ -1,26 +1,24 @@
 import { useQuery } from 'react-query'
-import { dialogsApi } from '../../../../../api/dialogs'
+import { chatApi, CHATS } from '../../../../../api/chats'
 import { Loader } from '../../../../shared/loader/loader'
-import { getInterlocutor } from '../../../../../functions/get-interlocutor'
 import { ChatItem } from './chat-item/chat-item'
 import { observer } from 'mobx-react-lite'
-import { userStore } from '../../../../../store/root-store'
 import s from './chats.module.scss'
 
 export const Chats = observer(() => {
-  const {data: dialogs, isLoading} = useQuery('dialogs', dialogsApi.getMyDialogs)
+  const {data: chats, isLoading} = useQuery(CHATS, chatApi.getAllChats)
 
   if (isLoading)
     return <Loader/>
 
   return (
     <div className={s.chats}>
-      {dialogs?.map(d => <ChatItem
-        key={`dialog ${d.id}`}
-        lastMessage={d.last_message}
-        chatName={getInterlocutor(d, userStore.user?.id).username}
+      {chats?.map(chat => <ChatItem
+        key={`${'initiator' in chat ? 'dialog' : 'group'} ${chat.id}`}
+        chat={chat}
       />)}
     </div>
   )
 })
+
 

@@ -86,6 +86,19 @@ button {
   transition: all .5s ease;
 }
 
+button.btn {
+  border: 1px solid $main-content;
+  padding: 20px;
+
+  &:hover {
+    border: 1px solid $paled-content;
+  }
+
+  &:active {
+    border: 1px solid $bright-content;
+  }
+}
+
 form {
   .inputGroup {
     display: flex;

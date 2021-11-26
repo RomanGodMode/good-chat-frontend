@@ -3,22 +3,17 @@ import s from './chat-page.module.scss'
 import { observer } from 'mobx-react-lite'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
-import { dialogsApi } from '../../../../api/dialogs'
-import { getInterlocutor } from '../../../../functions/get-interlocutor'
-import { chatStore, userStore } from '../../../../store/root-store'
+import { chatApi, CHATS } from '../../../../api/chats'
+import { chatStore } from '../../../../store/root-store'
 import { Message } from './message/message'
 import arrowLeft from '../../../../images/left-arrow.svg'
+import { Dialog, Group } from '../../../../types/chat'
 
 export const ChatPage = observer(() => {
   const [newMessage, setNewMessage] = useState('')
-  const {username} = useParams()
-  const {data: dialogs} = useQuery('dialogs', dialogsApi.getMyDialogs)
+  const {dialogId, groupId} = useParams()
+  const {data: chats} = useQuery(CHATS, chatApi.getAllChats)
 
-  // const interlocutor = useMemo(
-  //   () => chatStore.currentDialog && getInterlocutor(chatStore.currentDialog, userStore.user?.id)
-  //   , [chatStore.currentDialog, userStore.user?.id]
-  // )
-  // gigaLog(interlocutor)
 
   useEffect(() => {
     const onScroll = () => {
@@ -32,10 +27,15 @@ export const ChatPage = observer(() => {
   }, [])
 
   useEffect(() => {
-    if (dialogs) {
-      chatStore.setCurrentDialog(dialogs.find(d => getInterlocutor(d, userStore.user?.id).username === username))
+    if (chats) {
+      if (dialogId) {
+        const dialog = chats.find(c => 'initiator' in c && c.id === +dialogId!) as Dialog
+        return chatStore.setCurrentChat({dialog})
+      }
+      const group = chats.find(c => 'creator' in c && c.id === +groupId!) as Group
+      chatStore.setCurrentChat({group})
     }
-  }, [dialogs, username])
+  }, [chats, dialogId, groupId])
 
 
   return (
@@ -46,7 +46,7 @@ export const ChatPage = observer(() => {
           <img src={arrowLeft} alt=""/>
           back
         </Link>
-        <div className={s.chatName}>{username}</div>
+        <div className={s.chatName}>{'username'}</div>
         <div className={s.extraOptions}>
           options..
         </div>
@@ -59,7 +59,7 @@ export const ChatPage = observer(() => {
           </div>
       }
       <form onSubmit={e => e.preventDefault()} className={`${s.sendMessage} smallContainer`}>
-        <textarea className={s.text} rows={3} placeholder="Напишите сообщение..."
+        <textarea className={s.text} rows={3} placeholder="Write a message..."
                   value={newMessage} onChange={e => setNewMessage(e.target.value)}/>
         <button className={s.send} onClick={_ => chatStore.sendMessage(newMessage)}>
           Отправить

@@ -6,14 +6,15 @@ import { FindFriendsPage } from './components/pages/find-friends/find-friends-pa
 import { LoginPage } from './components/pages/auth/login-page'
 import { RegisterPage } from './components/pages/auth/register-page'
 
-export const useAppRoutes = (isAuthenticated: boolean) => {
+export const useAppRoutes = (isAuthenticated: boolean, isAuthenticatedLoading: boolean) => {
 
   if (isAuthenticated) {
     return (
       <Route path="/" element={<MainLayout/>}>
         <Route path="messager">
           <Route index element={<SelectChatPage/>}/>
-          <Route path=":username" element={<ChatPage/>}/>
+          <Route path="dialog/:dialogId" element={<ChatPage/>}/>
+          <Route path="group/:groupId" element={<ChatPage/>}/>
         </Route>
         <Route path="find-friends" element={<FindFriendsPage/>}/>
         <Route path="*" element={<Navigate to="messager"/>}/>
@@ -22,12 +23,11 @@ export const useAppRoutes = (isAuthenticated: boolean) => {
   }
 
   return <>
-    <Route path='/' element={<MainLayout/>}>
-      <Route path='register' element={<RegisterPage/>}/>
-      <Route path='login' element={<LoginPage/>}/>
-      <Route path='*' element={<Navigate to='login'/>}/>
+    <Route path="/" element={<MainLayout/>}>
+      <Route path="register" element={<RegisterPage/>}/>
+      <Route path="login" element={<LoginPage/>}/>
+      {!isAuthenticatedLoading && <Route path="*" element={<Navigate to="login"/>}/>}
     </Route>
   </>
 }
-
 

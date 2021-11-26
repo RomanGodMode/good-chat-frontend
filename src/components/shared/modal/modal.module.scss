@@ -1,0 +1,47 @@
+@import "src/variables";
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba($dark-back, .63);
+}
+
+.body {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100vw - 70px);
+  max-width: 900px;
+  background-color: $pale-back;
+  padding: 80px;
+  min-height: 24vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.body.hasTitle {
+  padding-top: 115px;
+}
+
+.title {
+  position: absolute;
+  top: 0;
+  right: auto;
+  left: auto;
+}
+
+button.close {
+  background-color: transparent;
+  border: none;
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  display: block;
+
+  img {
+    width: 30px;
+    height: 30px;
+  }
+}

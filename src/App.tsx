@@ -9,7 +9,7 @@ import { useEffect } from 'react'
 
 
 export const App = observer(() => {
-  const routes = useAppRoutes(!!userStore.user)
+  const routes = useAppRoutes(!!userStore.user, userStore.isLoading)
 
   useEffect(() => userStore.checkAuth(), [])
 
