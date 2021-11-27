@@ -6,10 +6,10 @@ export const CHATS = 'chats'
 class ChatApi {
   // getMyDialogs = () => api.get<Dialog[]>('my-dialogs/').then(res => res.data)
 
-  // initiateDialog = (answerer: number) => api.post<Dialog>(
-  //   'initiate-dialog/',
-  //   {answerer}
-  // ).then(res => res.data)
+  initiateDialog = (answerer: number) => api.post<Dialog>(
+    'initiate-dialog/',
+    {answerer}
+  ).then(res => res.data)
 
 
   createGroup = (title: string) => api.post<Group>('create-group/', {title}).then(res => res.data)

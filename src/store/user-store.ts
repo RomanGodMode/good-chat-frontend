@@ -26,7 +26,7 @@ export class UserStore {
 
   constructor(root: RootStore) {
     this.root = root
-    makeAutoObservable(this)
+    makeAutoObservable(this, {}, {autoBind: true})
   }
 
   checkAuth = () => {

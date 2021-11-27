@@ -5,22 +5,19 @@ import { Loader } from '../../shared/loader/loader'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import { User } from '../../../types/user'
-import { useEffect } from 'react'
-import { chatStore } from '../../../store/root-store'
+import { dialogStore } from '../../../store/root-store'
 
 export const FindFriendsPage = observer(() => {
   const {data: users, isLoading} = useQuery('users', usersApi.getUsers)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    chatStore.setOnInitiateDialogSuccess(dialog => navigate(`/messager/dialog/${dialog.id}`))
-  }, []) // eslint-disable-line
 
   if (isLoading)
     return <Loader/>
 
   const writeTo = async (user: User) => {
-    chatStore.initiateDialog(user.id)
+    dialogStore.initiateDialog(user.id)
+      .then(createdDialog => navigate(`/messager/dialog/${createdDialog.id}`))
   }
 
   return (

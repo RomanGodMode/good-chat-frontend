@@ -5,7 +5,6 @@ import { RootStore } from './root-store'
 import { queryClient } from '../index'
 import { chatApi, CHATS } from '../api/chats'
 import { scrollToBottom } from '../functions/scrollToBottom'
-import { USERS } from '../api/users'
 import { updateLastMessage } from '../functions/update-last-message'
 
 
@@ -13,9 +12,7 @@ type WebsocketEvent =
   { type: 'send_message', dialog: number, text: string } |
   { type: 'send_message', group: number, text: string } |
   { type: 'load_messages', dialog: number, page: number } |
-  { type: 'load_messages', group: number, page: number } |
-  // { type: 'subscribe_for_new_dialog', dialog: number } |
-  { type: 'initiate_dialog', dialog: { answerer: number } }
+  { type: 'load_messages', group: number, page: number }
 
 export class ChatStore {
   root: RootStore
@@ -76,8 +73,7 @@ export class ChatStore {
 
       const actions: any = {
         'receive_message': () => this.handleReceiveMessage(data.message),
-        'loaded_messages': () => this.handleLoadedMessages(data.messages, data.page, data.total_pages),
-        'initiate_dialog_success': () => this.handleInitiateDialogSuccess(data.created_dialog)
+        'loaded_messages': () => this.handleLoadedMessages(data.messages, data.page, data.total_pages)
       }
 
       actions[data.type]?.()
@@ -96,8 +92,6 @@ export class ChatStore {
       text
     })
 
-  initiateDialog = (answerer: number) => this.sendEvent({type: 'initiate_dialog', dialog: {answerer}})
-
   loadMessages() {
     this.isLoading = true
     this.currentDialog
@@ -114,11 +108,6 @@ export class ChatStore {
   }
 
   private sendEvent = (event: WebsocketEvent) => this.socket.send(JSON.stringify(event))
-
-  onInitiateDialogSuccess = (createdDialog: Dialog) => {
-  }
-
-  setOnInitiateDialogSuccess = (handle: (createdDialog: Dialog) => void) => this.onInitiateDialogSuccess = handle
 
   private async handleReceiveMessage(message: NewMessage) {
     const isDialog = 'dialog' in message
@@ -143,7 +132,7 @@ export class ChatStore {
     }
 
     if (isDialog) {
-      this.addDialog(await chatApi.getDialog(message.dialog))
+      this.root.dialogStore.addDialog(await chatApi.getDialog(message.dialog))
     }
   }
 
@@ -162,22 +151,6 @@ export class ChatStore {
       this.attemptNextPage()
       window.scrollTo({top: 150})
     }
-  }
-
-  private handleInitiateDialogSuccess(createdDialog: Dialog) {
-    this.addDialog(createdDialog)
-    this.onInitiateDialogSuccess(createdDialog)
-  }
-
-  // private handleOnNewDialog(newDialog: Dialog) {
-  //
-  // }
-
-
-  private addDialog(dialog: Dialog) {
-    const oldDialogs = queryClient.getQueryData<Dialog[]>(CHATS) || []
-    queryClient.setQueryData(CHATS, [dialog, ...oldDialogs])
-    queryClient.invalidateQueries(USERS).then()
   }
 
   closeChat = () => this.socket.close()
