@@ -1,9 +1,11 @@
 @import "src/variables";
 
 .chatItem {
-  display: block;
   background-color: $pale-back;
-  padding: 0 10px;
+}
+
+.chatLink {
+  display: block;
 
   &:hover {
     color: $main-content;
@@ -11,11 +13,14 @@
   }
 }
 
+.chatTitle {
+  margin: 0;
+  padding: 15px 10px;
+}
+
 .lastMessage {
   display: flex;
   align-items: center;
-  margin-left: -10px;
-  margin-right: -10px;
   padding: 0 20px;
 
   border-top: 1px solid $paled-content;

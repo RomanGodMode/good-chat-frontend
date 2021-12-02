@@ -5,9 +5,9 @@ import { TopPanel } from './top-panel/top-panel'
 export const SelectChatPage = () => {
 
   return (
-    <div>
+    <main>
       <TopPanel/>
       <Chats/>
-    </div>
+    </main>
   )
 }

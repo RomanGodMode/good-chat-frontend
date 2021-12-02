@@ -29,6 +29,7 @@ export type Message = {
   text: string
   sent_at: string
   sender: User
+  users_that_read: number[]
 }
 
 export type NewDialogMessage = Message & { dialog: number }

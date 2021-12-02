@@ -4,13 +4,12 @@
   position: fixed;
   inset: 0;
   background-color: rgba($dark-back, .63);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .body {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: calc(100vw - 70px);
   max-width: 900px;
   background-color: $pale-back;

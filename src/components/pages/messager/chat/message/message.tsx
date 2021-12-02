@@ -1,8 +1,10 @@
 import { Message as MessageType } from '../../../../../types/chat'
 import s from './message.module.scss'
-import { NavLink } from 'react-router-dom'
 import React from 'react'
-import { trimSeconds } from '../../../../../functions/trimSeconds'
+import { motion } from 'framer-motion'
+import { shift } from '../../../../../animations/shift'
+import { observer } from 'mobx-react-lite'
+import { getMessageStatus } from '../../../../../functions/get-message-status'
 
 
 type Props = {
@@ -10,12 +12,16 @@ type Props = {
 }
 
 
-export const Message = ({message}: Props) => {
+export const Message = observer(({message}: Props) => {
+  const {isRead, isOwn} = getMessageStatus(message)
+
   return (
-    <div className={s.message} key={message.id}>
-      <NavLink to="/" className={s.username}>{message.sender.username}</NavLink>
-      <span className={s.sentAt}>{trimSeconds(message.sent_at)}</span>
+    <motion.div
+      className={`${s.message} ${!isRead ? s.isUnread : ''} ${isOwn ? s.isOwn : ''}`}
+      key={message.id}
+      {...shift}
+    >
       <p className={s.text}>{message.text}</p>
-    </div>
+    </motion.div>
   )
-}
+})

@@ -12,7 +12,8 @@ export const queryClient = new QueryClient()
 
 queryClient.setDefaultOptions({
   queries: {
-    onError: e => handleServerError()(e as any)
+    onError: e => handleServerError()(e as any),
+    refetchOnWindowFocus: false
   }
 })
 

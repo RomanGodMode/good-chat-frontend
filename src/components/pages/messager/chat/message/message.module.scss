@@ -1,25 +1,23 @@
 @import "src/variables";
 
 .message {
-  padding: 10px;
-  display: grid;
-  grid-template:
-          "username sentAt" max-content
-          "text text" max-content
-          / 1fr 2fr;
-  column-gap: 20px;
-  row-gap: 5px;
-  background-color: $pale-back;
+  margin: 0 -18px;
+  padding: 0 10px;
 }
 
-.username {
-  grid-area: username;
+.message.isUnread {
+  background-color: rgba($bright-content, .1);
 }
 
-.sentAt {
-  grid-area: sentAt;
+.message.isUnread.isOwn {
+  background-color: rgba($text-content, .1);
+}
+
+.message + .message {
+  border-bottom: 1px solid $paled-content;
 }
 
 .text {
   grid-area: text;
+  margin: 6px 0;
 }

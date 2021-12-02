@@ -11,6 +11,7 @@ export const useAppRoutes = (isAuthenticated: boolean, isAuthenticatedLoading: b
   if (isAuthenticated) {
     return (
       <Route path="/" element={<MainLayout/>}>
+        <Route index element={<Navigate to={'messager'}/>}/>
         <Route path="messager">
           <Route index element={<SelectChatPage/>}/>
           <Route path="dialog/:dialogId" element={<ChatPage/>}/>

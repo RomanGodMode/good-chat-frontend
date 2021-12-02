@@ -4,6 +4,7 @@ import { Loader } from '../../../../shared/loader/loader'
 import { ChatItem } from './chat-item/chat-item'
 import { observer } from 'mobx-react-lite'
 import s from './chats.module.scss'
+import { AnimatePresence } from 'framer-motion'
 
 export const Chats = observer(() => {
   const {data: chats, isLoading} = useQuery(CHATS, chatApi.getAllChats)
@@ -13,10 +14,12 @@ export const Chats = observer(() => {
 
   return (
     <div className={s.chats}>
-      {chats?.map(chat => <ChatItem
-        key={`${'initiator' in chat ? 'dialog' : 'group'} ${chat.id}`}
-        chat={chat}
-      />)}
+      <AnimatePresence>
+        {chats?.map(chat => <ChatItem
+          key={`${'initiator' in chat ? 'dialog' : 'group'} ${chat.id}`}
+          chat={chat}
+        />)}
+      </AnimatePresence>
     </div>
   )
 })

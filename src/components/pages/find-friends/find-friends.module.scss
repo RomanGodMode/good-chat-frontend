@@ -3,16 +3,17 @@
 .userList {
   align-self: start;
   display: grid;
-  gap: 10px;
+  gap: 50px;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
 }
 
 .userItem {
-  //padding: 40px;
+  margin: -20px;
+  padding: 20px;
   display: grid;
-  grid-template: "name" minmax(30px, max-content)
-                 "link" minmax(30px, max-content)
-                  /1fr;
+  grid-template: "name name" minmax(30px, max-content)
+                 "write add" minmax(30px, max-content)
+                  /1fr 1fr;
   gap: 30px;
 
   background-color: $pale-back;
@@ -26,11 +27,23 @@
   }
 
   .writeTo {
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-bottom: 20px;
+    grid-area: write;
+  }
 
-    grid-area: link;
+  .addToGroup {
+    grid-area: add;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    .plus {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .writeTo, .addToGroup {
     padding: 14px;
     text-align: center;
     border: 1px solid $main-content;
@@ -46,4 +59,14 @@
     }
 
   }
+
+}
+
+.groupList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.groupItem {
+  align-self: stretch;
 }

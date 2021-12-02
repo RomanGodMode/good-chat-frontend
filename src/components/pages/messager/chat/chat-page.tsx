@@ -1,46 +1,68 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import s from './chat-page.module.scss'
 import { observer } from 'mobx-react-lite'
-import { Link, useParams } from 'react-router-dom'
+import { Link, NavLink, useParams } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { chatApi, CHATS } from '../../../../api/chats'
 import { chatStore } from '../../../../store/root-store'
 import { Message } from './message/message'
 import arrowLeft from '../../../../images/left-arrow.svg'
 import { Dialog, Group } from '../../../../types/chat'
+import { AnimatePresence, motion } from 'framer-motion'
+import { shift } from '../../../../animations/shift'
+import { useOnce } from '../../../../hooks/use-once'
 
 export const ChatPage = observer(() => {
   const [newMessage, setNewMessage] = useState('')
   const {dialogId, groupId} = useParams()
   const {data: chats} = useQuery(CHATS, chatApi.getAllChats)
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const sendButtonRef = useRef<HTMLButtonElement>(null)
+
 
   useEffect(() => {
     const onScroll = () => {
-      if (window.scrollY < 50) {
+      if (window.scrollY < 200) {
         chatStore.attemptNextPage()
       }
     }
 
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.altKey && !e.metaKey) {
+        textareaRef.current?.focus()
+      }
+      if (!e.shiftKey && e.key === 'Enter') {
+        e.preventDefault()
+        sendButtonRef.current?.click()
+      }
+    }
+
     document.addEventListener('scroll', onScroll)
-    return () => document.removeEventListener('scroll', onScroll)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('scroll', onScroll)
+      document.removeEventListener('keydown', onKeyDown)
+      chatStore.unsetChat()
+    }
   }, [])
 
-  useEffect(() => {
-    if (chats) {
-      if (dialogId) {
-        const dialog = chats.find(c => 'initiator' in c && c.id === +dialogId!) as Dialog
-        return chatStore.setCurrentChat({dialog})
-      }
-      const group = chats.find(c => 'creator' in c && c.id === +groupId!) as Group
+  useOnce(() => {
+    if (dialogId) {
+      const dialog = chats!.find(c => 'initiator' in c && c.id === +dialogId!) as Dialog
+      chatStore.setCurrentChat({dialog})
+      return
+    }
+    if (groupId) {
+      const group = chats!.find(c => 'creator' in c && c.id === +groupId!) as Group
       chatStore.setCurrentChat({group})
     }
-  }, [chats, dialogId, groupId])
+  }, chats)
 
 
   return (
     <div className={`smallContainer ${s.chatPage}`}>
-      <div className={`${s.chatCaptionBlind} smallContainer`}/>
+      <div className={`${s.chatCaptionBlind}`}/>
       <header className={`${s.chatCaption} smallContainer`}>
         <Link to="/messager" className={s.toChats}>
           <img src={arrowLeft} alt=""/>
@@ -51,17 +73,37 @@ export const ChatPage = observer(() => {
           options..
         </div>
       </header>
-      {
-        !chatStore.messages.length
-          ? <h3 className={s.emptyMessages}>You haven't written anything yet..</h3>
-          : <div className={s.messages}>
-            {chatStore.messages.map(m => <Message key={m.id} message={m}/>)}
-          </div>
-      }
+      <AnimatePresence>
+        {
+          !chatStore.messages.length
+            ? <h3 className={s.emptyMessages}>You haven't written anything yet..</h3>
+            : <div className={s.messageGroups}>
+              {chatStore.groupedMessages.map(({username, moment, values: messages}) =>
+                <motion.div {...shift} className={s.messageGroup} key={`${username} ${moment}`}>
+                  <NavLink to="/" className={s.username}>{username}</NavLink>
+                  <span className={s.sentAt}>{moment}</span>
+                  <div className={s.messages}>
+                    {messages.map(m => <Message key={m.id} message={m}/>)}
+                  </div>
+                </motion.div>)}
+            </div>
+        }
+      </AnimatePresence>
       <form onSubmit={e => e.preventDefault()} className={`${s.sendMessage} smallContainer`}>
-        <textarea className={s.text} rows={3} placeholder="Write a message..."
-                  value={newMessage} onChange={e => setNewMessage(e.target.value)}/>
-        <button className={s.send} onClick={_ => chatStore.sendMessage(newMessage)}>
+        <textarea
+          ref={textareaRef} className={s.text} rows={3} placeholder="Write a message..."
+          value={newMessage} onChange={e => setNewMessage(e.target.value)}
+        />
+        <button
+          disabled={!newMessage.trim()}
+          ref={sendButtonRef} className={s.send}
+          onClick={_ => {
+            if (newMessage.trim().length) {
+              chatStore.sendMessage(newMessage)
+              setNewMessage('')
+            }
+          }}
+        >
           Отправить
         </button>
       </form>

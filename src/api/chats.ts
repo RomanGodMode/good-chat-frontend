@@ -20,6 +20,8 @@ class ChatApi {
   })
 
   getDialog = (dialogId: number) => api.get<Dialog>(`dialog/${dialogId}/`).then(res => res.data)
+
+  getCreatedGroups = () => api.get<Group[]>('created-groups/').then(res => res.data)
 }
 
 export const chatApi = new ChatApi()

@@ -9,11 +9,16 @@
   position: fixed;
   top: 65px;
   height: 100px;
+  width: 100vw;
   background-color: $dark-back;
+  z-index: 100;
+  left: 0;
+  right: 0;
 }
 
 .chatCaption {
   position: fixed;
+  z-index: 101;
   left: 0;
   right: 0;
   top: 100px;
@@ -68,11 +73,35 @@
   font-weight: 500;
 }
 
-.messages {
+.messageGroups {
   display: flex;
   flex-direction: column-reverse;
   gap: 13px;
   margin-bottom: 140px;
+}
+
+.messageGroup {
+  display: grid;
+  grid-template: "name date" auto
+                 "messages messages" auto
+                / 1fr 2fr;
+  background-color: $pale-back;
+  padding: 20px 20px 0;
+}
+
+.username {
+  grid-area: name;
+}
+
+.dateSend {
+  grid-area: date;
+}
+
+.messages {
+  grid-area: messages;
+  display: flex;
+  flex-direction: column-reverse;
+  margin-top: 30px;
 }
 
 form.sendMessage {
