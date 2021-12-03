@@ -1,13 +1,12 @@
-import { useQuery } from 'react-query'
-import { chatApi, CHATS } from '../../../../../api/chats'
 import { Loader } from '../../../../shared/loader/loader'
 import { ChatItem } from './chat-item/chat-item'
 import { observer } from 'mobx-react-lite'
 import s from './chats.module.scss'
 import { AnimatePresence } from 'framer-motion'
+import { chatListStore } from '../../../../../store/root-store'
 
 export const Chats = observer(() => {
-  const {data: chats, isLoading} = useQuery(CHATS, chatApi.getAllChats)
+  const {chats, isLoading} = chatListStore
 
   if (isLoading)
     return <Loader/>
@@ -15,7 +14,7 @@ export const Chats = observer(() => {
   return (
     <div className={s.chats}>
       <AnimatePresence>
-        {chats?.map(chat => <ChatItem
+        {chats.map(chat => <ChatItem
           key={`${'initiator' in chat ? 'dialog' : 'group'} ${chat.id}`}
           chat={chat}
         />)}

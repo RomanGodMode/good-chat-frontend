@@ -1,7 +1,6 @@
 import { api } from './axios-instanse'
 import { Chat, Dialog, Group } from '../types/chat'
 
-export const CHATS = 'chats'
 
 class ChatApi {
   // getMyDialogs = () => api.get<Dialog[]>('my-dialogs/').then(res => res.data)

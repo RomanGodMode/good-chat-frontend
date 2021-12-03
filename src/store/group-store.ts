@@ -14,7 +14,7 @@ export class GroupStore {
 
   handleAddedToGroup(group: Group, addedUserId: number) {
     if (addedUserId === this.root.userStore.user?.id) {
-      this.root.dialogStore.addChat(group)
+      this.root.chatListStore.addChat(group)
       toast.success('Вас добавили в группу')
     }
   }

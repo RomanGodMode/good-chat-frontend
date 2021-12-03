@@ -1,15 +1,14 @@
-import { makeAutoObservable } from 'mobx'
-import { Chat, Dialog, Group, Message, NewMessage } from '../types/chat'
+import { action, makeAutoObservable, runInAction, when } from 'mobx'
+import { Dialog, Group, Message, NewMessage } from '../types/chat'
 import { ACCESS_TOKEN } from './user-store'
-import { RootStore } from './root-store'
-import { queryClient } from '../index'
-import { chatApi, CHATS } from '../api/chats'
+import { rootStore, RootStore } from './root-store'
+import { chatApi } from '../api/chats'
 import { scrollToBottom } from '../functions/scrollToBottom'
-import { updateLastMessage } from '../functions/update-last-message'
 import { groupBy } from '../functions/group-by'
 import { trimSeconds } from '../functions/trimSeconds'
-import { pushIfNot } from '../functions/push-if-not'
+import { pushIfNot } from '../functions/actions/push-if-not'
 import { wait } from '../functions/wait'
+import { remove } from '../functions/actions/remove'
 
 
 type WebsocketEvent =
@@ -27,8 +26,8 @@ export class ChatStore {
   socket: WebSocket = null as any
 
   messages: Message[] = []
-  currentDialog: null | Dialog = null
-  currentGroup: null | Group = null
+  currentDialogId: null | number = null
+  currentGroupId: null | number = null
 
   currentPage = 1
   totalPages: null | number = null
@@ -48,7 +47,21 @@ export class ChatStore {
     }))
   }
 
-  setCurrentChat({dialog, group}: { dialog?: Dialog, group?: Group }) {
+  get currentDialog() {
+    if (!this.currentDialogId) {
+      return null
+    }
+    return this.root.chatListStore.chats.find(chat => 'initiator' in chat && chat.id === this.currentDialogId) as Dialog
+  }
+
+  get currentGroup() {
+    if (!this.currentGroupId) {
+      return null
+    }
+    return this.root.chatListStore.chats.find(chat => 'members' in chat && chat.id === this.currentDialogId) as Group
+  }
+
+  setCurrentChat({dialog, group}: { dialog?: number, group?: number }) {
     if (dialog || group) {
       this.currentPage = 1
       this.totalPages = null
@@ -56,14 +69,14 @@ export class ChatStore {
       this.mayToLoadMore = false
     }
     if (dialog) {
-      this.currentDialog = dialog
-      this.currentGroup = null
+      this.currentDialogId = dialog
+      this.currentGroupId = null
       this.loadMessages()
       return
     }
     if (group) {
-      this.currentGroup = group
-      this.currentDialog = null
+      this.currentGroupId = group
+      this.currentDialogId = null
       this.loadMessages()
     }
   }
@@ -81,8 +94,8 @@ export class ChatStore {
   }
 
   unsetChat() {
-    this.currentDialog = null
-    this.currentGroup = null
+    this.currentDialogId = null
+    this.currentGroupId = null
   }
 
   sendMessage = (text: string) => this.currentDialog
@@ -118,8 +131,10 @@ export class ChatStore {
     ? this.sendEvent({type: 'mark_as_read', dialog_id: data.dialogId})
     : this.sendEvent({type: 'mark_as_read', group_id: data.groupId})
 
-  loadMessages() {
-    this.isLoading = true
+  async loadMessages() {
+    await when(() => this.root.chatListStore.isLoaded)
+
+    runInAction(() => this.isLoading = true)
     this.currentDialog
       ? this.sendEvent({
         type: 'load_messages',
@@ -128,10 +143,11 @@ export class ChatStore {
       })
       : this.currentGroup && this.sendEvent({
       type: 'load_messages',
-      group: this.currentGroup!.id,
+      group: this.currentGroup.id,
       page: this.currentPage
     })
   }
+
 
   sendEvent = (event: WebsocketEvent) => this.socket.send(JSON.stringify(event))
 
@@ -151,17 +167,21 @@ export class ChatStore {
       return
     }
 
-    const oldChats = queryClient.getQueryData<Chat[]>(CHATS) || []
+    const chats = this.root.chatListStore.chats
+
     const updatedChat = isDialog
-      ? oldChats.find(d => d.id === message.dialog)
-      : oldChats.find(d => d.id === message.group)
+      ? chats.find(d => d.id === message.dialog)
+      : chats.find(d => d.id === message.group)
 
     if (updatedChat) {
-      return queryClient.setQueryData(CHATS, updateLastMessage(oldChats, updatedChat, message))
+      action('removeUpdatedChat', remove)(chats, updatedChat)
+      updatedChat.last_message = message
+      chats.unshift(updatedChat)
+      return
     }
 
     if (isDialog) {
-      this.root.dialogStore.addChat(await chatApi.getDialog(message.dialog))
+      this.root.chatListStore.addChat(await chatApi.getDialog(message.dialog))
     }
   }
 
@@ -178,7 +198,7 @@ export class ChatStore {
 
     if (page > 1 && window.scrollY === 0 && !this.isLoading) {
       this.attemptNextPage()
-      window.scrollTo({top: 150, behavior: 'smooth'})
+      window.scrollTo({top: 150, behavior: 'auto'})
     }
   }
 
@@ -197,7 +217,7 @@ export class ChatStore {
       return
     }
 
-    const chats = queryClient.getQueryData<Chat[]>(CHATS) || []
+    const chats = rootStore.chatListStore.chats
     if (isDialog) {
       const dialog = chats.find(c => 'initiator' in c && c.id === data.dialog_id)
       pushIfNot(dialog!.last_message!.users_that_read, data.user_id)

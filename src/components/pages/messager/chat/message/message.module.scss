@@ -3,6 +3,7 @@
 .message {
   margin: 0 -18px;
   padding: 0 10px;
+  transition: background-color ease 1s;
 }
 
 .message.isUnread {

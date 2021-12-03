@@ -2,12 +2,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import s from './chat-page.module.scss'
 import { observer } from 'mobx-react-lite'
 import { Link, NavLink, useParams } from 'react-router-dom'
-import { useQuery } from 'react-query'
-import { chatApi, CHATS } from '../../../../api/chats'
-import { chatStore } from '../../../../store/root-store'
+import { chatStore, userStore } from '../../../../store/root-store'
 import { Message } from './message/message'
 import arrowLeft from '../../../../images/left-arrow.svg'
-import { Dialog, Group } from '../../../../types/chat'
 import { AnimatePresence, motion } from 'framer-motion'
 import { shift } from '../../../../animations/shift'
 import { useOnce } from '../../../../hooks/use-once'
@@ -15,7 +12,6 @@ import { useOnce } from '../../../../hooks/use-once'
 export const ChatPage = observer(() => {
   const [newMessage, setNewMessage] = useState('')
   const {dialogId, groupId} = useParams()
-  const {data: chats} = useQuery(CHATS, chatApi.getAllChats)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const sendButtonRef = useRef<HTMLButtonElement>(null)
@@ -23,7 +19,7 @@ export const ChatPage = observer(() => {
 
   useEffect(() => {
     const onScroll = () => {
-      if (window.scrollY < 200) {
+      if (window.scrollY < 300) {
         chatStore.attemptNextPage()
       }
     }
@@ -48,17 +44,10 @@ export const ChatPage = observer(() => {
   }, [])
 
   useOnce(() => {
-    if (dialogId) {
-      const dialog = chats!.find(c => 'initiator' in c && c.id === +dialogId!) as Dialog
-      chatStore.setCurrentChat({dialog})
-      return
-    }
-    if (groupId) {
-      const group = chats!.find(c => 'creator' in c && c.id === +groupId!) as Group
-      chatStore.setCurrentChat({group})
-    }
-  }, chats)
-
+    dialogId
+      ? chatStore.setCurrentChat({dialog: +dialogId})
+      : groupId && chatStore.setCurrentChat({group: +groupId})
+  }, dialogId || groupId)
 
   return (
     <div className={`smallContainer ${s.chatPage}`}>
@@ -68,7 +57,9 @@ export const ChatPage = observer(() => {
           <img src={arrowLeft} alt=""/>
           back
         </Link>
-        <div className={s.chatName}>{'username'}</div>
+        <div className={s.chatName}>
+          {chatStore.currentGroup?.title || (chatStore.currentDialog && userStore.getInterlocutor(chatStore.currentDialog))?.username}
+        </div>
         <div className={s.extraOptions}>
           options..
         </div>

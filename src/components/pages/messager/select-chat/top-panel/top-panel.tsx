@@ -2,24 +2,21 @@ import s from './top-panel.module.scss'
 import plus from '../../../../../images/plus.svg'
 import { useState } from 'react'
 import { Modal } from '../../../../shared/modal/modal'
-import { chatApi, CHATS } from '../../../../../api/chats'
+import { chatApi } from '../../../../../api/chats'
 import { handleServerError } from '../../../../../functions/handle-server-error'
 import { toast } from 'react-toastify'
-import { useQueryClient } from 'react-query'
-import { Chat } from '../../../../../types/chat'
+import { chatListStore } from '../../../../../store/root-store'
 
 export const TopPanel = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [groupTitle, setGroupTitle] = useState('')
-  const queryClient = useQueryClient()
 
   const createGroup = () => {
     chatApi.createGroup(groupTitle)
       .then(createdGroup => {
         toast.success('success with creating group')
         setIsOpen(false)
-        const oldChats = queryClient.getQueryData<Chat[]>(CHATS) || []
-        queryClient.setQueryData(CHATS, [createdGroup, ...oldChats])
+        chatListStore.addChat(createdGroup)
       })
       .catch(handleServerError(['title']))
   }
