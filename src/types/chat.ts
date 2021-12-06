@@ -1,9 +1,10 @@
 import { User } from './user'
+import { Omit } from 'framer-motion/types/types'
 
-type WithoutLastMessage<T> = Omit<T, 'last_message'>
-
-export type DialogWithoutLastMessage = WithoutLastMessage<Dialog>
-export type GroupWithoutLastMessage = WithoutLastMessage<Group>
+// type WithoutLastMessage<T> = Omit<T, 'last_message'>
+//
+// export type DialogWithoutLastMessage = WithoutLastMessage<Dialog>
+// export type GroupWithoutLastMessage = WithoutLastMessage<Group>
 
 export type Dialog = {
   id: number
@@ -11,6 +12,7 @@ export type Dialog = {
   answerer: User
   created_at: string
   last_message: Message | null
+  typingUsers: number[]
 }
 
 export type Group = {
@@ -20,7 +22,12 @@ export type Group = {
   members: User[]
   created_at: string
   last_message: Message | null
+  typingUsers: number[]
 }
+
+export type ServerDialog = Omit<Dialog, 'typingUsers'>
+export type ServerGroup = Omit<Group, 'typingUsers'>
+export type ServerChat = ServerDialog | ServerGroup
 
 export type Chat = Dialog | Group
 
@@ -37,6 +44,6 @@ export type NewGroupMessage = Message & { group: number }
 
 export type NewMessage = NewDialogMessage | NewGroupMessage
 
-
+export type OptionalChat = { dialog?: number | null, group?: number | null }
 
 

@@ -1,7 +1,6 @@
 import { action, makeAutoObservable, runInAction, when } from 'mobx'
-import { Dialog, Group, Message, NewMessage } from '../types/chat'
-import { ACCESS_TOKEN } from './user-store'
-import { rootStore, RootStore } from './root-store'
+import { Message, NewMessage } from '../types/chat'
+import { isTypingStore, rootStore, RootStore, userStore } from './root-store'
 import { chatApi } from '../api/chats'
 import { scrollToBottom } from '../functions/scrollToBottom'
 import { groupBy } from '../functions/group-by'
@@ -11,19 +10,8 @@ import { wait } from '../functions/wait'
 import { remove } from '../functions/actions/remove'
 
 
-type WebsocketEvent =
-  { type: 'send_message', dialog: number, text: string } |
-  { type: 'send_message', group: number, text: string } |
-  { type: 'load_messages', dialog: number, page: number } |
-  { type: 'load_messages', group: number, page: number } |
-  { type: 'add_to_group', user: number, group: number } |
-  { type: 'mark_as_read', dialog_id: number } |
-  { type: 'mark_as_read', group_id: number }
-
 export class ChatStore {
   root: RootStore
-
-  socket: WebSocket = null as any
 
   messages: Message[] = []
   currentDialogId: null | number = null
@@ -51,14 +39,14 @@ export class ChatStore {
     if (!this.currentDialogId) {
       return null
     }
-    return this.root.chatListStore.chats.find(chat => 'initiator' in chat && chat.id === this.currentDialogId) as Dialog
+    return this.root.dialogStore.dialogs.find(dialog => dialog.id === this.currentDialogId)
   }
 
   get currentGroup() {
     if (!this.currentGroupId) {
       return null
     }
-    return this.root.chatListStore.chats.find(chat => 'members' in chat && chat.id === this.currentDialogId) as Group
+    return this.root.groupStore.groups.find(group => group.id === this.currentGroupId)
   }
 
   setCurrentChat({dialog, group}: { dialog?: number, group?: number }) {
@@ -71,14 +59,19 @@ export class ChatStore {
     if (dialog) {
       this.currentDialogId = dialog
       this.currentGroupId = null
-      this.loadMessages()
+      this.sendLoadMessages().then()
       return
     }
     if (group) {
       this.currentGroupId = group
       this.currentDialogId = null
-      this.loadMessages()
+      this.sendLoadMessages().then()
     }
+  }
+
+  unsetChat() {
+    this.currentDialogId = null
+    this.currentGroupId = null
   }
 
   attemptNextPage() {
@@ -89,59 +82,36 @@ export class ChatStore {
       this.mayToLoadMore
     ) {
       this.currentPage++
-      this.loadMessages()
+      this.sendLoadMessages().then()
     }
   }
 
-  unsetChat() {
-    this.currentDialogId = null
-    this.currentGroupId = null
-  }
-
   sendMessage = (text: string) => this.currentDialog
-    ? this.sendEvent({
+    ? this.root.websocketStore.sendEvent({
       type: 'send_message',
       dialog: this.currentDialog!.id,
       text
     })
-    : this.sendEvent({
+    : this.root.websocketStore.sendEvent({
       type: 'send_message',
       group: this.currentGroup!.id,
       text
     })
 
-  openChat() {
-    this.socket?.close()
-    this.socket = new WebSocket(`ws://127.0.0.1:8000/chat/?token=${localStorage.getItem(ACCESS_TOKEN)}`)
-    this.socket.addEventListener('message', e => {
-      const data = JSON.parse(e.data)
+  sendMarkAsRead = (data: { dialogId: number } | { groupId: number }) => 'dialogId' in data
+    ? this.root.websocketStore.sendEvent({type: 'mark_as_read', dialog_id: data.dialogId})
+    : this.root.websocketStore.sendEvent({type: 'mark_as_read', group_id: data.groupId})
 
-      const actions: any = {
-        'receive_message': () => this.handleReceiveMessage(data.message),
-        'loaded_messages': () => this.handleLoadedMessages(data.messages, data.page, data.total_pages),
-        'added_to_group': () => this.root.groupStore.handleAddedToGroup(data.group, data.user_id),
-        'read_messages': () => this.handleReadMessages(data)
-      }
-
-      actions[data.type]?.()
-    })
-  }
-
-  markAsRead = (data: { dialogId: number } | { groupId: number }) => 'dialogId' in data
-    ? this.sendEvent({type: 'mark_as_read', dialog_id: data.dialogId})
-    : this.sendEvent({type: 'mark_as_read', group_id: data.groupId})
-
-  async loadMessages() {
-    await when(() => this.root.chatListStore.isLoaded)
-
+  async sendLoadMessages() {
+    await when(() => this.root.chatsListStore.isLoaded)
     runInAction(() => this.isLoading = true)
     this.currentDialog
-      ? this.sendEvent({
+      ? this.root.websocketStore.sendEvent({
         type: 'load_messages',
         dialog: this.currentDialog.id,
         page: this.currentPage
       })
-      : this.currentGroup && this.sendEvent({
+      : this.currentGroup && this.root.websocketStore.sendEvent({
       type: 'load_messages',
       group: this.currentGroup.id,
       page: this.currentPage
@@ -149,10 +119,19 @@ export class ChatStore {
   }
 
 
-  sendEvent = (event: WebsocketEvent) => this.socket.send(JSON.stringify(event))
-
-  private async handleReceiveMessage(message: NewMessage) {
+  async handleReceiveMessage(message: NewMessage) {
     const isDialog = 'dialog' in message
+
+    isTypingStore.handleSomeoneStopTyping(
+      message.sender.id
+      , isDialog
+        ? {dialog: message.dialog}
+        : {group: message.group}
+    )
+
+    if (message.sender.id === userStore.user?.id) {
+      this.root.isTypingStore.isTyping = false
+    }
 
     const isCurrentChatMessage = isDialog
       ? message.dialog === this.currentDialog?.id
@@ -162,12 +141,12 @@ export class ChatStore {
       this.messages.unshift(message)
       setTimeout(scrollToBottom, 0)
       if (message.sender.id !== this.root.userStore.user?.id) {
-        this.markAsRead(isDialog ? {dialogId: this.currentDialog!.id} : {groupId: this.currentGroup!.id})
+        this.sendMarkAsRead(isDialog ? {dialogId: this.currentDialog!.id} : {groupId: this.currentGroup!.id})
       }
       return
     }
 
-    const chats = this.root.chatListStore.chats
+    const chats = this.root.chatsListStore.chats
 
     const updatedChat = isDialog
       ? chats.find(d => d.id === message.dialog)
@@ -181,12 +160,13 @@ export class ChatStore {
     }
 
     if (isDialog) {
-      this.root.chatListStore.addChat(await chatApi.getDialog(message.dialog))
+      this.root.chatsListStore.addChat(await chatApi.getDialog(message.dialog))
     }
   }
 
-  private handleLoadedMessages(messages: Message[], page: number, totalPages: number) {
+  handleLoadedMessages(messages: Message[], page: number, totalPages: number) {
     this.messages.push(...messages)
+    // gigaLog(this.messages)
     this.currentPage = page
     this.totalPages = totalPages
     this.isLoading = false
@@ -202,7 +182,7 @@ export class ChatStore {
     }
   }
 
-  private async handleReadMessages(data: { dialog_id: number, user_id: number } | { group_id: number, user_id: number }) {
+  async handleReadMessages(data: { dialog_id: number, user_id: number } | { group_id: number, user_id: number }) {
     const isDialog = 'dialog_id' in data
 
     const isCurrentChat = isDialog
@@ -217,7 +197,7 @@ export class ChatStore {
       return
     }
 
-    const chats = rootStore.chatListStore.chats
+    const chats = rootStore.chatsListStore.chats
     if (isDialog) {
       const dialog = chats.find(c => 'initiator' in c && c.id === data.dialog_id)
       pushIfNot(dialog!.last_message!.users_that_read, data.user_id)
@@ -226,8 +206,6 @@ export class ChatStore {
     const group = chats.find(c => 'creator' in c && c.id === data.group_id)
     pushIfNot(group!.last_message!.users_that_read, data.user_id)
   }
-
-  closeChat = () => this.socket.close()
 
 }
 

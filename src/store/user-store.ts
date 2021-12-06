@@ -47,7 +47,7 @@ export class UserStore {
     }
     this.user = {id: user_id, name}
     this.isLoading = false
-    this.root.chatStore.openChat()
+    this.root.websocketStore.openChat()
 
     setTimeout(this.refresh, 1000 * 60 * 4)
   }

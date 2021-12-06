@@ -5,7 +5,7 @@ import { chatApi } from '../api/chats'
 import { queryClient } from '../index'
 import { USERS } from '../api/users'
 
-export class ChatListStore {
+export class ChatsListStore {
   chats: Chat[] = []
   isLoading = false
   isLoaded = false
@@ -21,7 +21,10 @@ export class ChatListStore {
   fetchChats() {
     this.isLoading = true
     return chatApi.getAllChats()
-      .then(action('setChats', chats => this.chats = chats))
+      .then(action(
+        'setChats',
+        chats => this.chats = chats
+      ))
       .finally(action('fetchChatsEnd', () => {
         this.isLoading = false
         this.isLoaded = true

@@ -5,7 +5,7 @@ import { Modal } from '../../../../shared/modal/modal'
 import { chatApi } from '../../../../../api/chats'
 import { handleServerError } from '../../../../../functions/handle-server-error'
 import { toast } from 'react-toastify'
-import { chatListStore } from '../../../../../store/root-store'
+import { chatsListStore } from '../../../../../store/root-store'
 
 export const TopPanel = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,7 +16,7 @@ export const TopPanel = () => {
       .then(createdGroup => {
         toast.success('success with creating group')
         setIsOpen(false)
-        chatListStore.addChat(createdGroup)
+        chatsListStore.addChat(createdGroup)
       })
       .catch(handleServerError(['title']))
   }

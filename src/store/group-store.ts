@@ -12,15 +12,19 @@ export class GroupStore {
     makeAutoObservable(this, {}, {autoBind: true})
   }
 
+  get groups() {
+    return this.root.chatsListStore.chats.filter(chat => 'members' in chat) as Group[]
+  }
+
   handleAddedToGroup(group: Group, addedUserId: number) {
     if (addedUserId === this.root.userStore.user?.id) {
-      this.root.chatListStore.addChat(group)
+      this.root.chatsListStore.addChat(group)
       toast.success('Вас добавили в группу')
     }
   }
 
   addToGroup(userId: number, groupId: number) {
-    this.root.chatStore.sendEvent({
+    this.root.websocketStore.sendEvent({
       type: 'add_to_group', user: userId, group: groupId
     })
   }
