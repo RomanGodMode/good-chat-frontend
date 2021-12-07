@@ -1,0 +1,55 @@
+@import "src/variables";
+
+.bottomMenu {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  padding: 10px;
+  border: 1px solid $pale-back;
+  background-color: $dark-back;
+  border-radius: 10px;
+  z-index: 10;
+}
+
+form.sendMessage {
+  display: grid;
+  grid-template: "text btn";
+  gap: 10px;
+
+  textarea.text {
+    grid-area: text;
+    border: 1px solid $pale-back;
+
+    &:hover {
+      border: 1px solid $main-content;
+    }
+  }
+
+  button.send {
+    grid-area: btn;
+    border: 1px solid $pale-back;
+  }
+}
+
+.chatFooterBlind {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $dark-back;
+  height: 30px;
+  width: 100vw;
+  z-index: 9;
+}
+
+
+.typingUsers {
+  min-height: 21px;
+  margin-top: 9px;
+  margin-left: 10px;
+}
+
+.typingUser {
+
+}

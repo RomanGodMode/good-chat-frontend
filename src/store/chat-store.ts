@@ -22,6 +22,8 @@ export class ChatStore {
   isLoading = false
   mayToLoadMore = false
 
+  newMessagesCount = 0
+
 
   constructor(root: RootStore) {
     this.root = root
@@ -55,6 +57,7 @@ export class ChatStore {
       this.totalPages = null
       this.messages = []
       this.mayToLoadMore = false
+      this.newMessagesCount = 0
     }
     if (dialog) {
       this.currentDialogId = dialog
@@ -109,12 +112,14 @@ export class ChatStore {
       ? this.root.websocketStore.sendEvent({
         type: 'load_messages',
         dialog: this.currentDialog.id,
-        page: this.currentPage
+        page: this.currentPage,
+        shift: this.newMessagesCount
       })
       : this.currentGroup && this.root.websocketStore.sendEvent({
       type: 'load_messages',
       group: this.currentGroup.id,
-      page: this.currentPage
+      page: this.currentPage,
+      shift: this.newMessagesCount
     })
   }
 
@@ -139,6 +144,7 @@ export class ChatStore {
 
     if (isCurrentChatMessage) {
       this.messages.unshift(message)
+      this.newMessagesCount++
       setTimeout(scrollToBottom, 0)
       if (message.sender.id !== this.root.userStore.user?.id) {
         this.sendMarkAsRead(isDialog ? {dialogId: this.currentDialog!.id} : {groupId: this.currentGroup!.id})

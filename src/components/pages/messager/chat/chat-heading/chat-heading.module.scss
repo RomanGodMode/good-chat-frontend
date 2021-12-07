@@ -1,0 +1,62 @@
+@import "src/variables";
+
+.chatCaptionBlind {
+  position: fixed;
+  top: 65px;
+  height: 100px;
+  width: 100vw;
+  background-color: $dark-back;
+  z-index: 100;
+  left: 0;
+  right: 0;
+}
+
+.chatCaption {
+  position: fixed;
+  z-index: 101;
+  left: 0;
+  right: 0;
+  top: 100px;
+  background-color: $dark-back;
+  border-top: 1px solid $pale-back;
+  border-left: 1px solid $pale-back;
+  border-right: 1px solid $pale-back;
+  border-radius: 10px;
+  display: grid;
+  grid-template: "toChats name extra" 1fr
+                 / 1fr 1fr 1fr;
+
+
+  > * {
+    padding: 20px;
+  }
+
+
+}
+
+.toChats {
+  grid-area: toChats;
+  display: flex;
+  align-items: center;
+  color: $text-content;
+
+  img {
+    width: 24px;
+    height: 24px;
+    margin-right: 15px;
+  }
+
+  &:hover {
+    background: linear-gradient(90deg, rgba($lighted-pale-back, 0.9164040616246498) 7%, rgba($dark-back, 1) 100%);
+  }
+}
+
+.chatName {
+  grid-area: name;
+  text-align: center;
+}
+
+.extraOptions {
+  grid-area: extra;
+  text-align: right;
+}

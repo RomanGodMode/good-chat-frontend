@@ -6,8 +6,8 @@ type WebsocketEvent =
   { type: 'send_message', dialog: number, text: string } |
   { type: 'send_message', group: number, text: string } |
 
-  { type: 'load_messages', dialog: number, page: number } |
-  { type: 'load_messages', group: number, page: number } |
+  { type: 'load_messages', dialog: number, page: number, shift: number } |
+  { type: 'load_messages', group: number, page: number, shift: number } |
 
   { type: 'add_to_group', user: number, group: number } |
 

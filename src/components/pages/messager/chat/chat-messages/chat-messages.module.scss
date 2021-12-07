@@ -1,0 +1,38 @@
+@import "src/variables";
+
+.emptyMessages {
+  margin-top: 20vh;
+  text-align: center;
+  padding: 0 10px;
+  font-weight: 500;
+}
+
+.messageGroups {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 13px;
+}
+
+.messageGroup {
+  display: grid;
+  grid-template: "name date" auto
+                 "messages messages" auto
+                / 1fr 2fr;
+  background-color: $pale-back;
+  padding: 20px 20px 0;
+}
+
+.username {
+  grid-area: name;
+}
+
+.dateSend {
+  grid-area: date;
+}
+
+.messages {
+  grid-area: messages;
+  display: flex;
+  flex-direction: column-reverse;
+  margin-top: 30px;
+}
