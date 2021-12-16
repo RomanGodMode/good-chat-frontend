@@ -5,6 +5,7 @@ import { ChatPage } from './components/pages/messager/chat/chat-page'
 import { FindFriendsPage } from './components/pages/find-friends/find-friends-page'
 import { LoginPage } from './components/pages/auth/login-page'
 import { RegisterPage } from './components/pages/auth/register-page'
+import { TestMobx } from './components/pages/test-mobx'
 
 export const useAppRoutes = (isAuthenticated: boolean, isAuthenticatedLoading: boolean) => {
 
@@ -27,6 +28,7 @@ export const useAppRoutes = (isAuthenticated: boolean, isAuthenticatedLoading: b
     <Route path="/" element={<MainLayout/>}>
       <Route path="register" element={<RegisterPage/>}/>
       <Route path="login" element={<LoginPage/>}/>
+      <Route path="test-mobx" element={<TestMobx/>}/>
       {!isAuthenticatedLoading && <Route path="*" element={<Navigate to="login"/>}/>}
     </Route>
   </>
