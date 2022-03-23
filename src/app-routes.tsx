@@ -6,6 +6,7 @@ import { FindFriendsPage } from './components/pages/find-friends/find-friends-pa
 import { LoginPage } from './components/pages/auth/login-page'
 import { RegisterPage } from './components/pages/auth/register-page'
 import { TestMobx } from './components/pages/test-mobx'
+import { TestReactRouter } from './components/pages/test-react-router'
 
 export const useAppRoutes = (isAuthenticated: boolean, isAuthenticatedLoading: boolean) => {
 
@@ -29,6 +30,7 @@ export const useAppRoutes = (isAuthenticated: boolean, isAuthenticatedLoading: b
       <Route path="register" element={<RegisterPage/>}/>
       <Route path="login" element={<LoginPage/>}/>
       <Route path="test-mobx" element={<TestMobx/>}/>
+      <Route path="test-react-router" element={<TestReactRouter/>}/>
       {!isAuthenticatedLoading && <Route path="*" element={<Navigate to="login"/>}/>}
     </Route>
   </>
