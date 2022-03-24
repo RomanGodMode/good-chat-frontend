@@ -1,6 +1,5 @@
 type Row = boolean[]
 type Range = [number, number]
-const row: Row = [true, false, true, false, false, false, false, false, true]
 
 const getGaps = (row: Row) => {
   const gaps: Range[] = []
@@ -14,6 +13,10 @@ const getGaps = (row: Row) => {
       from = index
     }
   })
+
+  if (from !== row.length - 1) {
+    gaps.push([from + 1, row.length - 1])
+  }
 
   return gaps
 }
@@ -41,10 +44,23 @@ const getLargestGap = (row: Row) => {
 }
 
 export const getMaxDistanceFromClosest = (row: Row) => {
-  const { gapLength } = getLargestGap(row)
+  const { gapLength, gap } = getLargestGap(row)
+  const [from, to] = gap
+
+  if (from === 0 || to === row.length - 1) {
+    return gapLength + 1
+  }
+
   return gapLength % 2 === 0
     ? Math.floor(gapLength / 2) + 1
     : Math.ceil(gapLength / 2) + 1
 }
 
-console.log(getMaxDistanceFromClosest(row))
+const row1: Row = [true, false, true, false, false, false, true]
+console.log(getMaxDistanceFromClosest(row1))
+
+const row2: Row = [true, false, true, false, false]
+console.log(getMaxDistanceFromClosest(row2))
+
+const row3: Row = [false, false, true, false, true, false]
+console.log(getMaxDistanceFromClosest(row3))
